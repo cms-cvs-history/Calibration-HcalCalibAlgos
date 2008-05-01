@@ -502,13 +502,13 @@ void MinBias1::Loop()
        fprintf(Out2,"%d %d %d %d %.8f\n",mysubdetpl0[ietak][idep][isub],ietak,iphik,idep,plmeang_mean);
 	
 	Float_t zz = (Float_t)yy;  		
-        int ietakk = -1*ietak;       
+//        int ietakk = -1*ietak;       
 //         if( isub == 1 ) fprintf(Out1,"%s %d %d %d %.5f %.5f\n","HB",ietak,iphik,idep,plmeang_mean_corr,zz);
 //         if( isub == 2 ) fprintf(Out1,"%s %d %d %d %.5f %.5f\n","HE",ietak,iphik,idep,plmeang_mean_corr,zz);
 //         if( isub == 3 ) fprintf(Out1,"%s %d %d %d %.5f %.5f\n","HO",ietak,iphik,idep,plmeang_mean_corr,zz);
 //         if( isub == 4 ) fprintf(Out1,"%s %d %d %d %.5f %.5f\n","HF",ietak,iphik,idep,plmeang_mean_corr,zz);
 
-            fprintf(Out1,"%d %d %d %d %.5f %.5f\n",isub,idep, ietakk,iphik,plmeang_mean_corr,zz); 
+            fprintf(Out1,"%d %d %d %d %.5f %.5f\n",isub,idep, ietak,iphik,plmeang_mean_corr,zz); 
 
          hCalo2etatwocoef[ietak][idep][isub]->Fill((float)iphik,plmeang_mean_corr);
          hCalo2etaonecoef[ietak][idep][isub]->Fill((float)iphik,plmeang_mean_corr);
