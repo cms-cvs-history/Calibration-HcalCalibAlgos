@@ -450,32 +450,27 @@ void MinBias1::Loop()
   for(int isub = 1; isub < 5; isub++ )
   {
     
-    if( plneveta[ietak][idep][isub] <= 30 ) {
-
-    for(Int_t iphik = 1; iphik != 73; iphik++ )
-    {
-      Float_t a=1.;
-      fprintf(Out1,"%d %d %d %d %.5f %.5f\n",isub,idep, ietak,iphik,a,a);
-    }      
-      continue;
-
-    }
-
+    if( plneveta[ietak][idep][isub] <= 0 ) continue;
+    
     plmean_mean = plmean[ietak][idep][isub]/plneveta[ietak][idep][isub];
     plmean_nn_mean = plmean_nn[ietak][idep][isub]/plneveta[ietak][idep][isub];
     
     perr = plerr[ietak][idep][isub]/plneveta[ietak][idep][isub] - plmean_mean*plmean_mean;
     
+//    if( idep == 1 && ietak == 16) cout<<" My "<< ietak<<" "<<idep<<" "<<plneveta[ietak][idep][isub]<<" "<<plerr[ietak][idep][isub]<<" "<<plmean_mean<<" "<<perr<<endl;
+    
     for(Int_t iphik = 1; iphik != 73; iphik++ )
     {
 
-          if(plnevetaphi[ietak][iphik][idep][isub] <= 30) {
-            Float_t b = 1;
+          if( idep == 1 && ietak == 16 ) cout<<" 16th ring "<<iphik<<" "<<plmeang[ietak][iphik][idep][isub]<<endl;
+
+          if(plnevetaphi[ietak][iphik][idep][isub] == 0) {
+            plmeang[ietak][iphik][idep][isub] == 0;
 //            if( isub == 1 ) fprintf(Out1,"%s %d %d %d %.5f %.5f\n","HB",ietak,iphik,idep,plmeang[ietak][iphik][idep][isub],plmeang[ietak][iphik][idep][isub]);
 //            if( isub == 2 ) fprintf(Out1,"%s %d %d %d %.5f %.5f\n","HE",ietak,iphik,idep,plmeang[ietak][iphik][idep][isub],plmeang[ietak][iphik][idep][isub]);
 //            if( isub == 3 ) fprintf(Out1,"%s %d %d %d %.5f %.5f\n","HO",ietak,iphik,idep,plmeang[ietak][iphik][idep][isub],plmeang[ietak][iphik][idep][isub]);
 //            if( isub == 4 ) fprintf(Out1,"%s %d %d %d %.5f %.5f\n","HF",ietak,iphik,idep,plmeang[ietak][iphik][idep][isub],plmeang[ietak][iphik][idep][isub]);
-            fprintf(Out1,"%d %d %d %d %.5f %.5f\n",isub,idep, ietak,iphik,b,b); 
+            fprintf(Out1,"%d %d %d %d %.5f %.5f\n",isub,idep, ietak,iphik,plmeang[ietak][iphik][idep][isub],plmeang[ietak][iphik][idep][isub]); 
             continue;
            }
 	
@@ -501,8 +496,7 @@ void MinBias1::Loop()
 	 
        fprintf(Out2,"%d %d %d %d %.8f\n",mysubdetpl0[ietak][idep][isub],ietak,iphik,idep,plmeang_mean);
 	
-	Float_t zz = (Float_t)yy;  		
-//        int ietakk = -1*ietak;       
+	Float_t zz = (Float_t)yy;  		       
 //         if( isub == 1 ) fprintf(Out1,"%s %d %d %d %.5f %.5f\n","HB",ietak,iphik,idep,plmeang_mean_corr,zz);
 //         if( isub == 2 ) fprintf(Out1,"%s %d %d %d %.5f %.5f\n","HE",ietak,iphik,idep,plmeang_mean_corr,zz);
 //         if( isub == 3 ) fprintf(Out1,"%s %d %d %d %.5f %.5f\n","HO",ietak,iphik,idep,plmeang_mean_corr,zz);
@@ -527,31 +521,26 @@ void MinBias1::Loop()
    
    int iieta = -1*ietak;
     
-    if( minneveta[ietak][idep][isub] <= 30 ) {
-    for(Int_t iphik = 1; iphik != 73; iphik++ )
-    {
-      Float_t a=1.;
-      fprintf(Out1,"%d %d %d %d %.5f %.5f\n",isub,idep,iieta,iphik,a,a);
-    }
-
-    continue;
-    }
+    if( minneveta[ietak][idep][isub] <= 0 ) continue;
+    
     minmean_mean = minmean[ietak][idep][isub]/minneveta[ietak][idep][isub];
     minmean_nn_mean = minmean_nn[ietak][idep][isub]/minneveta[ietak][idep][isub];
     
     perr = minerr[ietak][idep][isub]/minneveta[ietak][idep][isub] - minmean_mean*minmean_mean;
     
+    if( idep == 1 && ietak == 1) cout<<" My "<< ietak<<" "<<idep<<" "<<minneveta[ietak][idep][isub]<<" "<<minerr[ietak][idep][isub]<<" "<<minmean_mean<<" "<<perr<<endl;
+    
     for(Int_t iphik = 1; iphik != 73; iphik++ )
     {
     
-          if(minnevetaphi[ietak][iphik][idep][isub] <= 30) {
-            Float_t b = 1;
+          if(minnevetaphi[ietak][iphik][idep][isub] == 0) {
+            minmeang[ietak][iphik][idep][isub] == 0;
 //            if( isub == 1 ) fprintf(Out1,"%s %d %d %d %.5f  %.5f\n","HB",iieta,iphik,idep,minmeang[ietak][iphik][idep][isub],minmeang[ietak][iphik][idep][isub]);
 //            if( isub == 2 ) fprintf(Out1,"%s %d %d %d %.5f  %.5f\n","HE",iieta,iphik,idep,minmeang[ietak][iphik][idep][isub],minmeang[ietak][iphik][idep][isub]);
 //           if( isub == 3 ) fprintf(Out1,"%s %d %d %d %.5f  %.5f\n","HO",iieta,iphik,idep,minmeang[ietak][iphik][idep][isub],minmeang[ietak][iphik][idep][isub]);
 //            if( isub == 4 ) fprintf(Out1,"%s %d %d %d %.5f  %.5f\n","HF",iieta,iphik,idep,minmeang[ietak][iphik][idep][isub],minmeang[ietak][iphik][idep][isub]);
 
-            fprintf(Out1,"%d %d %d %d %.5f %.5f\n",isub,idep, iieta,iphik,b,b); 
+            fprintf(Out1,"%d %d %d %d %.5f %.5f\n",isub,idep, ietak,iphik,minmeang[ietak][iphik][idep][isub],minmeang[ietak][iphik][idep][isub]); 
 
             continue;
            }
@@ -586,7 +575,7 @@ void MinBias1::Loop()
 //         if( isub == 3 ) fprintf(Out1,"%s %d %d %d %.5f %.5f\n","HO",iieta,iphik,idep,minmeang_mean_corr,zz);
 //         if( isub == 4 ) fprintf(Out1,"%s %d %d %d %.5f %.5f\n","HF",iieta,iphik,idep,minmeang_mean_corr,zz);
 
-            fprintf(Out1,"%d %d %d %d %.5f %.5f\n",isub,idep, iieta,iphik,minmeang_mean_corr,zz); 
+            fprintf(Out1,"%d %d %d %d %.5f %.5f\n",isub,idep, ietak,iphik,minmeang_mean_corr,zz); 
 
          hCalo1etatwocoef[ietak][idep][isub]->Fill((float)iphik,minmeang_mean_corr);
          hCalo1etaonecoef[ietak][idep][isub]->Fill((float)iphik,minmeang_mean_corr);
