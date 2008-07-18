@@ -1,4 +1,8 @@
- module isoTrkCalib = HcalIsoTrkAnalyzer {
+include "TrackingTools/TrackAssociator/data/default.cfi" 
+
+replace EERecHitCollectionLabel
+
+module isoTrkCalib = HcalIsoTrkAnalyzer {
         InputTag hbheInput = IsoProd:IsoTrackHBHERecHitCollection
         InputTag hoInput = IsoProd:IsoTrackHORecHitCollection
         InputTag eInput = IsoProd:IsoTrackEcalRecHitCollection
@@ -6,6 +10,6 @@
         double associationConeSize=0.5
         string outputFileName = "test.root"
         bool allowMissingInputs=false
-       }
+}
 
 
