@@ -8,7 +8,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 
 process.load("Configuration.StandardSequences.VtxSmearedBetafuncEarlyCollision_cff")
 
-process.load("Calibration.HcalCalibAlgos.isoTrkCalib_cfi")
+process.load("Calibration.HcalCalibAlgos.isoAnalyzer_cfi")
 
 process.load("HLTrigger.Timer.timer_cfi")
 
@@ -34,6 +34,6 @@ process.pts = cms.EDFilter("PathTimerInserter")
 
 process.PathTimerService = cms.Service("PathTimerService")
 
-process.AnalIsoTrTest = cms.Path(process.isoTrkCalib)
+process.p = cms.Path(process.isoTrkCalib)
 
 
