@@ -1,3 +1,5 @@
+// $Id: HcalCorrPFCalculation.cc,v 1.14 2010/01/21 21:50:27 andrey Exp $
+
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -34,6 +36,7 @@
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "Calibration/HcalCalibAlgos/src/MaxHit_struct.h"
 
 #include "TROOT.h"
 #include "TFile.h"
@@ -56,12 +59,6 @@ class HcalCorrPFCalculation : public edm::EDAnalyzer {
   
   double RecalibFactor(HcalDetId id);
 
-  //std::string outputFile_;
-  //std::string hcalselector_;
-  //std::string ecalselector_;
-  //std::string eventype_;
-  //std::string sign_;
-  //std::string mc_;
   bool        Respcorr_;
   bool        PFcorr_;
   bool        Conecorr_;
@@ -71,11 +68,6 @@ class HcalCorrPFCalculation : public edm::EDAnalyzer {
 
   Bool_t doHF;
   Bool_t AddRecalib;
-  //int hasresp;
-
-  //int etype_;
-  //  int iz;
-
   int nevtot;
 
   const HcalRespCorrs* respRecalib;
@@ -88,7 +80,7 @@ class HcalCorrPFCalculation : public edm::EDAnalyzer {
 
   TProfile *nCells, *nCellsNoise, *enHcal, *enHcalNoise;
   TH1F *enEcalB, *enEcalE;
-
+  TTree *pfTree;
   TFile *rootFile;
 
   TrackDetectorAssociator trackAssociator_;
@@ -106,6 +98,14 @@ class HcalCorrPFCalculation : public edm::EDAnalyzer {
   Float_t yTrkHcal;
   Float_t zTrkHcal;
 
+  double eEcalCone, eHcalCone, eHcalConeNoise;
+  // int numrechitsEcal = 0;
+  
+  int UsedCells, UsedCellsNoise;
+
+  //  Float_t etaTrack, phiTrack;
+  Int_t  iPhi, iEta;
+      
 };
 
 
@@ -119,20 +119,12 @@ HcalCorrPFCalculation::HcalCorrPFCalculation(edm::ParameterSet const& conf) {
   radius_       = conf.getUntrackedParameter<double>("ConeRadiusCm", 40.);
   energyECALmip = conf.getParameter<double>("energyECALmip");
 
-  //famos_        = conf.getUntrackedParameter<bool>("Famos", false);
-  //  std::cout << "*** famos_ = " << famos_ << std::endl; 
-
   edm::ParameterSet parameters = conf.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
   parameters_.loadParameters( parameters );
   trackAssociator_.useDefaultPropagator();
 
   taECALCone_=conf.getUntrackedParameter<double>("TrackAssociatorECALCone",0.5);
   taHCALCone_=conf.getUntrackedParameter<double>("TrackAssociatorHCALCone",0.6);
-
-
-  //iz = 1;
-  //if(sign_ == "-") iz = -1;
-  //if(sign_ == "*") iz = 0;
 
 }
 
@@ -190,68 +182,12 @@ double  HcalCorrPFCalculation::RecalibFactor(HcalDetId id)
 
 HcalCorrPFCalculation::~HcalCorrPFCalculation() {
 
-  //  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
   
 }
-
-void HcalCorrPFCalculation::beginJob(){
-  
-  // TProfile *nCells, *nCellsNoise, *en, *enNoise;
-  //TFile *rootFile;
-  
-  //rootFile = new TFile(outputFile_.c_str(),"RECREATE");
-  
-  
-  nCells = fs->make<TProfile>("nCells", "nCells", 83, -41.5, 41.5); 
-  nCellsNoise = fs->make<TProfile>("nCellsNoise", "nCellsNoise", 83, -41.5, 41.5); 
-  
-  enHcal = fs->make<TProfile>("enHcal", "enHcal", 83, -41.5, 41.5); 
-  enHcalNoise =  fs->make<TProfile>("enHcalNoise", "enHcalNoise", 83, -41.5, 41.5); 
-  
-  enEcalB = fs->make<TH1F>("enEcalB", "enEcalB", 500, -5,50); 
-  enEcalE = fs->make<TH1F>("enEcalE", "enEcalE", 500, -5,50); 
-  
-  // Response corrections w/o re-rechitting
-  AddRecalib=kFALSE;
-
-//  try{
-    
-//    edm::ESHandle <HcalRespCorrs> recalibCorrs;
-//    c.get<HcalRespCorrsRcd>().get("recalibrate",recalibCorrs);
-//    respRecalib = recalibCorrs.product();
-    
-//    edm::ESHandle <HcalPFCorrs> pfCorrs;
-//    c.get<HcalPFCorrsRcd>().get("recalibrate",pfCorrs);
-//    pfRecalib = pfCorrs.product();
-    
-//    AddRecalib = kTRUE;;
-    // LogMessage("CalibConstants")<<"   OK ";
-    
-//  }catch(const cms::Exception & e) {
-//    LogWarning("CalibConstants")<<"   Not Found!! ";
-//  }
-  
-    
-}
-void HcalCorrPFCalculation::endJob() 
-{
-
-  /*
-  nCells -> Write();
-  nCellsNoise -> Write();
-  enHcal -> Write();
-  enHcalNoise -> Write();
-  
-  enEcalB -> Write();
-  enEcalE -> Write();
-
-  rootFile->Close();
-  */
-}
-
 
 void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const& c) {
 
+  AddRecalib=kFALSE;
 
   try{
 
@@ -385,18 +321,18 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
       
       
       // energy in ECAL
-      double eEcalCone   = 0.;
+      eEcalCone   = 0.;
       // int numrechitsEcal = 0;
       
       //Hcal:
-      float HcalCone    = 0.;
-      float HcalConeNoise    = 0.;
-      int UsedCells = 0;
-      int UsedCellsNoise = 0;
+      eHcalCone = 0.;
+      eHcalConeNoise = 0.;
+      UsedCells = 0;
+      UsedCellsNoise = 0;
+      
 
-
-      int iphitrue = -10;
-      int ietatrue = 100;
+      Int_t iphitrue = -10;
+      Int_t ietatrue = 100;
       
       if (etahcal<1.392) 
 	{
@@ -424,12 +360,6 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	  iphitrue = tempId.iphi();
 	}
       
-
-      //float dddeta = 1000.;
-      //float dddphi = 1000.;
-      //int iphitrue = 1234;
-      //int ietatrue = 1234;
-      
       //Calculate Ecal energy:      
       for (EBRecHitCollection::const_iterator ehit=HitecalEB.begin(); ehit!=HitecalEB.end(); ehit++)	
 	{
@@ -450,14 +380,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
       if(abs(etaecal)>1.5 && abs(etaecal)<3.1) enEcalE -> Fill(eEcalCone); 
 
 
-      struct
-      {
-	int iphihitm;
-	int ietahitm;
-	int depthhit;
-	float hitenergy;
-	float dr;
-      } MaxHit;
+      MaxHit_struct MaxHit;
 
       MaxHit.hitenergy=-100.;
 
@@ -490,9 +413,9 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	  double deta = fabs(etahcal - etahit); 
 	  double dr = sqrt(dphi*dphi + deta*deta);
 	  
-	  dr =  getDistInPlaneSimple(gPointHcal,pos);
+	  //dr =  getDistInPlaneSimple(gPointHcal,pos);
 
-	  if(dr<60.) 
+	  if(dr<0.5) 
 	    {
 	      
 	      for (HBHERecHitCollection::const_iterator hhit2=Hithbhe.begin(); hhit2!=Hithbhe.end(); hhit2++) 
@@ -521,7 +444,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	  
 	  if(dr<radius_ && enehit>0.01) 
 	    {
-	      HcalCone += enehit;	    
+	      eHcalCone += enehit;	    
 	      UsedCells++;
 
 	      // cout<<"track: ieta "<<ietahit<<" iphi: "<<iphihit<<" depth: "<<depthhit<<" energydepos: "<<enehit<<endl;
@@ -537,7 +460,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 		  if (iphihitNoise == iphihit2 && ietahitNoise == ietahit2 && depthhitNoise == depthhit2 && enehit2>0.01)
 		    {
 		      
-		      HcalConeNoise += hhit2->energy()*recal;
+		      eHcalConeNoise += hhit2->energy()*recal;
 		      UsedCellsNoise++;
 		      //cout<<"Noise: ieta "<<ietahit2<<" iphi: "<<iphihit2<<" depth: "<<depthhit2<<" energydepos: "<<enehit2<<endl;
 		    }
@@ -591,7 +514,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	  if(dr<radius_ && enehit>0.01) 
 	    {
 	      
-	      HcalCone += enehit;	    
+	      eHcalCone += enehit;	    
 	      UsedCells++;
 	      
 	      for (HFRecHitCollection::const_iterator hhit2=Hithf.begin(); hhit2!=Hithf.end(); hhit2++) 
@@ -605,7 +528,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 		  
 		  if (iphihitNoise == iphihit2 && ietahitNoise == ietahit2 && depthhitNoise == depthhit2 && enehit2>0.01)
 		    {
-		      HcalConeNoise += hhit2->energy()*recal;
+		      eHcalConeNoise += hhit2->energy()*recal;
 		      UsedCellsNoise++;
 		    }
 		}
@@ -630,13 +553,70 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
       
       if(passCuts)
 	{
-	  enHcal -> Fill(ietatrue,  HcalCone);
+	  enHcal -> Fill(ietatrue,  eHcalCone);
 	  nCells -> Fill(ietatrue,  UsedCells);
-	  enHcalNoise -> Fill(ietatrue,  HcalConeNoise);
+	  enHcalNoise -> Fill(ietatrue,  eHcalConeNoise);
 	  nCellsNoise -> Fill(ietatrue,  UsedCellsNoise); 
+
+	  iEta = ietatrue;
+	  iPhi = iphitrue;
+
+	  pfTree->Fill();
 	}
     }
 }
+
+void HcalCorrPFCalculation::beginJob(){
+  
+  // TProfile *nCells, *nCellsNoise, *en, *enNoise;
+  //TFile *rootFile;
+  
+  //rootFile = new TFile(outputFile_.c_str(),"RECREATE");
+  
+  
+  nCells = fs->make<TProfile>("nCells", "nCells", 83, -41.5, 41.5); 
+  nCellsNoise = fs->make<TProfile>("nCellsNoise", "nCellsNoise", 83, -41.5, 41.5); 
+  
+  enHcal = fs->make<TProfile>("enHcal", "enHcal", 83, -41.5, 41.5); 
+  enHcalNoise =  fs->make<TProfile>("enHcalNoise", "enHcalNoise", 83, -41.5, 41.5); 
+  
+  enEcalB = fs->make<TH1F>("enEcalB", "enEcalB", 500, -5,50); 
+  enEcalE = fs->make<TH1F>("enEcalE", "enEcalE", 500, -5,50); 
+
+ pfTree = new TTree("pfTree", "Tree for pf info");
+
+ pfTree->Branch("eEcalCone", &eEcalCone, "eEcalCone/F");
+ pfTree->Branch("eHcalCone", &eHcalCone, "eHcalCone/F");
+ pfTree->Branch("eHcalConeNoise", &eHcalConeNoise, "eHcalConeNoise/F");
+
+ pfTree->Branch("UsedCellsNoise", &UsedCellsNoise, "UsedCellsNoise/I");
+ pfTree->Branch("UsedCells", &UsedCells, "UsedCells/I");
+
+ 
+ // pfTree->Branch("etaTrack", &etaTrack, "etaTrack/F");
+ //pfTree->Branch("phiTrack", &phiTrack, "phiTrack/F");
+ 
+ pfTree->Branch("iEta", &iEta, "iEta/I");
+ pfTree->Branch("iPhi", &iPhi, "iPhi/I");
+ 
+
+}
+void HcalCorrPFCalculation::endJob() 
+{
+
+  /*
+  nCells -> Write();
+  nCellsNoise -> Write();
+  enHcal -> Write();
+  enHcalNoise -> Write();
+  
+  enEcalB -> Write();
+  enEcalE -> Write();
+
+  rootFile->Close();
+  */
+}
+
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
