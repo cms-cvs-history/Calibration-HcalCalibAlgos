@@ -366,7 +366,7 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       double phiecal=info.trkGlobPosAtEcal.phi();
 
       double etahcal=info.trkGlobPosAtHcal.eta();
-      double phihcal=info.trkGlobPosAtHcal.phi();
+      //double phihcal=info.trkGlobPosAtHcal.phi();
 
 
 
@@ -383,7 +383,7 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   	int iphitrue = -10;
 	int ietatrue = 100;
 
-	if (abs(etahcal)<1.392) 
+	if (etahcal<1.392) 
 	  {
 	    const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
 	    //    const GlobalPoint tempPoint(newx, newy, newz);
@@ -393,7 +393,7 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	    iphitrue = tempId.iphi();
 	  }
 
-	if (abs(etahcal)>1.392 &&  abs(etahcal)<3.0) 
+	if (etahcal>1.392 &&  etahcal<3.0) 
 	  {
 	    const CaloSubdetectorGeometry* gHE = geo->getSubdetectorGeometry(DetId::Hcal,HcalEndcap);
 	    const HcalDetId tempId = gHE->getClosestCell(gP);
