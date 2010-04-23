@@ -31,6 +31,7 @@
 
 #include <fstream>
 
+using namespace std;
 
 namespace edm {
   class ParameterSet;
@@ -73,17 +74,17 @@ class GammaJetAnalysis : public edm::EDAnalyzer {
      
   // stuff for histogramms
   //  output file name with histograms
-     std::string fOutputFileName ;
+     string fOutputFileName ;
      bool allowMissingInputs_;
      bool useMC;
   //
      TFile*      hOutputFile ;
      TTree * myTree;
-     std::ofstream *myout_part;   
-     std::ofstream *myout_hcal;
-     std::ofstream *myout_ecal;     
-     std::ofstream *myout_jet;   
-     std::ofstream *myout_photon;
+     ofstream *myout_part;   
+     ofstream *myout_hcal;
+     ofstream *myout_ecal;     
+     ofstream *myout_jet;   
+     ofstream *myout_photon;
   //  
       int NumRecoJets,NumGenJets,NumRecoGamma,NumRecoTrack,NumRecoHcal,NumPart;
       int run,event;

@@ -28,6 +28,7 @@
 #include <map>
 #include <vector>
 
+using namespace std;
 using namespace reco;
 //
 // constructors and destructor
@@ -51,10 +52,10 @@ HcalConstantsASCIIWriter::~HcalConstantsASCIIWriter()
 void HcalConstantsASCIIWriter::beginJob()
 {
     edm::FileInPath f1(file_output);
-    std::string fDataFile = f1.fullPath();
+    string fDataFile = f1.fullPath();
 
   myout_hcal = new ofstream(fDataFile.c_str());
-  if(!myout_hcal) std::cout << " Output file not open!!! "<<std::endl;
+  if(!myout_hcal) cout << " Output file not open!!! "<<endl;
     
 }
 
@@ -88,13 +89,13 @@ HcalConstantsASCIIWriter::analyze(const edm::Event& iEvent, const edm::EventSetu
    std::vector<DetId> did =  geo->getValidDetIds();
 
  
-    std::map<HcalDetId,float> corrold;
+    map<HcalDetId,float> corrold;
     //map<HcalDetId,float> corrnew; 
     
     int mysubd,depth,ieta,iphi;
     float coradd,corerr;
      
-    std::vector<HcalDetId> theVector; 
+    vector<HcalDetId> theVector; 
     for(std::vector<DetId>::iterator i = did.begin(); i != did.end(); i++)
     {
       if( (*i).det() == DetId::Hcal ) { 
@@ -109,10 +110,10 @@ HcalConstantsASCIIWriter::analyze(const edm::Event& iEvent, const edm::EventSetu
 // Read new corrections from file
 
     edm::FileInPath f1(file_input);
-    std::string fDataFile = f1.fullPath();
+    string fDataFile = f1.fullPath();
      
     std::ifstream in( fDataFile.c_str() );
-    std::string line;
+    string line;
     
    double corrnew_p[5][5][45][75]; 
    double corrnew_m[5][5][45][75];
@@ -122,7 +123,7 @@ HcalConstantsASCIIWriter::analyze(const edm::Event& iEvent, const edm::EventSetu
 //    std::cout<<" Line size "<<line.size()<< " "<<line<< std::endl;
 
       if(!line.size() || line[0]=='#') continue;
-      std::istringstream linestream(line);
+      istringstream linestream(line);
 
       linestream>>mysubd>>depth>>ieta>>iphi>>coradd>>corerr;
 //      DetId mydid(DetId::Hcal,HcalSubdetector(mysubd));
@@ -139,7 +140,7 @@ HcalConstantsASCIIWriter::analyze(const edm::Event& iEvent, const edm::EventSetu
     
     HcalRespCorrs* mycorrections = new HcalRespCorrs(); 
     
-   for(std::vector<HcalDetId>::iterator it = theVector.begin(); it != theVector.end(); it++)
+   for(vector<HcalDetId>::iterator it = theVector.begin(); it != theVector.end(); it++)
    {
      float cc1 = (*corrold.find(*it)).second;
  //    float cc2 = (*corrnew.find(*it)).second;
