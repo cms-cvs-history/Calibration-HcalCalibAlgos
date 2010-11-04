@@ -6,7 +6,7 @@
 //  Anton Anastassov (Northwestern)
 //  Email: aa@fnal.gov
 //
-// $Id: hcalCalib.cc,v 1.4 2009/03/22 15:12:58 anastass Exp $
+// $Id: hcalCalib.cc,v 1.7 2010/10/03 08:31:49 elmer Exp $
 //
 
 #include "Calibration/HcalCalibAlgos/interface/hcalCalib.h"
@@ -417,9 +417,9 @@ void hcalCalib::Terminate() {
   Int_t minIEta = 999;
 
 
-  for (uint i=0; i<cellEnergies.size(); ++i) {
+  for (unsigned int i=0; i<cellEnergies.size(); ++i) {
     Int_t iEta;    
-    for (uint j=0; j<(cellEnergies[i]).size(); ++j) {
+    for (unsigned int j=0; j<(cellEnergies[i]).size(); ++j) {
       iEta = HcalDetId(cellIds[i][j]).ieta();
       rawResp += (cellEnergies[i])[j];
       
@@ -446,7 +446,7 @@ void hcalCalib::Terminate() {
  
     if (CALIB_TYPE=="ISO_TRACK") {
       Int_t ind = refIEtaIPhi[i].first;  
-      ind = (ind<0)? ind +=24 : ind +=23;
+      (ind<0) ? (ind +=24) : (ind +=23);
       if (ind>=0 && ind<48) {
 	h1_corRespIEta[ind]->Fill(corResp);  
       }
@@ -528,19 +528,19 @@ void hcalCalib::GetCoefFromMtrxInvOfAve() {
     //  iEtaRef  iEtaCell, energy 
     map<Int_t, map<Int_t, Float_t> > aveHitE; // add energies in the loop, normalize after that
  
-    for (uint i=0; i<cellEnergies.size(); ++i) {
+    for (unsigned int i=0; i<cellEnergies.size(); ++i) {
       Int_t iEtaRef = refIEtaIPhi[i].first;
       aveTargetE[iEtaRef] += targetEnergies[i];
       nEntries[iEtaRef]++;
 
       // for hybrid method: matrix inv of averages preceeded by L3
       if (CALIB_METHOD=="L3_AND_MTRX_INV") {
-	for (uint j=0; j<(cellEnergies[i]).size(); ++j) {
+	for (unsigned int j=0; j<(cellEnergies[i]).size(); ++j) {
 	  aveHitE[iEtaRef][HcalDetId(cellIds[i][j]).ieta()] += (solution[cellIds[i][j]] * cellEnergies[i][j]);
 	}          
       }
       else if (CALIB_METHOD=="MATRIX_INV_OF_ETA_AVE") {
-	for (uint j=0; j<(cellEnergies[i]).size(); ++j) {
+	for (unsigned int j=0; j<(cellEnergies[i]).size(); ++j) {
 	  aveHitE[iEtaRef][HcalDetId(cellIds[i][j]).ieta()] += cellEnergies[i][j];
 	}          
       }
